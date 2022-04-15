@@ -1,0 +1,40 @@
+{
+  "name": "musify",
+  "version": "1.0.0",
+  "description": "Musify app from MEAN2 Course, but better",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danielherrerab/musify.git"
+  },
+  "author": "Daniel Herrera",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/danielherrerab/musify/issues"
+  },
+  "homepage": "https://github.com/danielherrerab/musify#readme",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "body-parser": "^1.19.2",
+    "compression": "^1.7.4",
+    "connect-multiparty": "^2.2.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "helmet": "^5.0.2",
+    "joi": "^17.6.0",
+    "jwt-simple": "^0.5.6",
+    "moment": "^2.29.1",
+    "mongoose": "^6.2.9",
+    "mongoose-paginate-v2": "^1.6.3",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+}
