@@ -1,8 +1,11 @@
-import bcrypt from 'bcrypt'
 import Joi from 'joi'
 import User from '../schemas/user.js'
-
-const SALT_ROUNDS = 10
+import {
+  passwordPattern,
+  passwordEncrypt,
+  passwordCompare
+} from '../services/password.js'
+import { createToken } from '../services/jwt.js'
 
 // Joi objects for usage on input validations
 const validators = {
@@ -16,8 +19,7 @@ const validators = {
       'string.max': '{{#label}} cannot exceed 64 characters',
       'string.empty': '{{#label}} is required',
       'any.required': '{{#label}} is required'
-    })
-    .required(),
+    }),
   surname: Joi.string()
     .alphanum()
     .min(3)
@@ -28,29 +30,16 @@ const validators = {
       'string.max': '{{#label}} cannot exceed 64 characters',
       'string.empty': '{{#label}} is required',
       'any.required': '{{#label}} is required'
-    })
-    .required(),
-  anyPassword: Joi.string()
-    .label('Password')
-    .messages({
-      'string.empty': '{{#label}} is required',
-      'any.required': '{{#label}} is required'
-    })
-    .required(),
+    }),
   password: Joi.string()
     // Una mayúscula, una minúscula, un número, entre 8 a 15 carácteres
-    .pattern(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}/m)
+    .pattern(passwordPattern)
     .label('Password')
     .messages({
       'string.pattern.base': '{{#label}} isn\'t valid',
       'string.empty': '{{#label}} is required',
       'any.required': '{{#label}} is required'
-    })
-    .required(),
-  confirm_password: Joi.any().equal(Joi.ref('password'))
-    .required()
-    .label('Confirm Password')
-    .messages({ 'any.only': '{{#label}} does not match' }),
+    }),
   email: Joi.string()
     .email({ minDomainSegments: 2 })
     .messages({
@@ -58,11 +47,43 @@ const validators = {
       'string.empty': '{{#label}} is required',
       'any.required': '{{#label}} is required'
     })
-    .required()
 }
 
 export const getUser = (req, res) => {
   res.status(200).send({
-    message: 'User get'
+    message: 'User get',
+    params: req.query
+  })
+}
+
+export const updateUser = (req, res) => {
+  // Receive params
+  console.info('req.query.id', req.query.id)
+  console.info('typeof req.query.id', typeof req.query.id)
+  // Case Scenario 1: Role Admin, no id received on query
+
+
+  // Case Scenario 2: Role Admin, id received on query
+
+
+  // Case Scenario 3: Role User, id ignored
+
+
+  const userId = req.params.id
+  const params = req.body
+  // Create object for input validations
+  const schema = Joi.object(validators)
+  // validate inputs
+  const { error, value: requestParams } = schema.validate(params)
+  // return error if something is missing
+  if (error) return res.status(200).send({ message: error.details[0].message, status: false })
+
+  res.status(200).send({
+    message: 'User get',
+    requestParams,
+    params: req.params,
+    query: req.query.id,
+    user: req.user,
+    userId
   })
 }

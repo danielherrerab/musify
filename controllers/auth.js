@@ -1,9 +1,12 @@
-import bcrypt from 'bcrypt'
+
 import Joi from 'joi'
 import User from '../schemas/user.js'
+import {
+  passwordPattern,
+  passwordEncrypt,
+  passwordCompare
+} from '../services/password.js'
 import { createToken } from '../services/jwt.js'
-
-const SALT_ROUNDS = 10
 
 // Joi objects for usage on input validations
 const validators = {
@@ -40,7 +43,7 @@ const validators = {
     .required(),
   password: Joi.string()
     // Una mayúscula, una minúscula, un número, entre 8 a 15 carácteres
-    .pattern(/(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}/m)
+    .pattern(passwordPattern)
     .label('Password')
     .messages({
       'string.pattern.base': '{{#label}} isn\'t valid',
@@ -88,7 +91,7 @@ export const signup = async (req, res) => {
   user.email = requestParams.email.toLowerCase()
   user.role = 'ROLE_USER' // Set manually, so far
   user.image = 'null' // 'null' as string, beacuse type of image is string on UserSchema
-  user.password = await bcrypt.hash(requestParams.password, SALT_ROUNDS)
+  user.password = await passwordEncrypt(requestParams.password)
   user.save((err, storedUser) => {
     if (err) return res.status(500).send({ message: 'An error has occurred during user creation' })
     // we create a new authentication token with user data
@@ -114,7 +117,7 @@ export const login = async (req, res) => {
   // If user doesn't exist, return error response
   if (!!user === false) return res.status(400).send({ message: 'User doesn\'t exist', status: false })
   // We check if password is valid
-  const validPassword = await bcrypt.compare(requestParams.password, user.password)
+  const validPassword = await passwordCompare(requestParams.password, user.password)
   // Password doesn't match, return error message
   if (validPassword === false) return res.status(400).send({ message: 'Invalid password', status: false })
   // we create a new authentication token with user data
